@@ -1,0 +1,12 @@
+other: .string "abc" 
+more: .data -1 
+x: .data 23 
+.extern VOID 
+.entry x 
+mov x , *r1 
+inc VOID 
+mov x , *r1 
+inc VOID 
+LOOP: mov r1 , x 
+dec x 
+jmp LOOP 

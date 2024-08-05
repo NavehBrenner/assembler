@@ -1,0 +1,14 @@
+this will 
+Z: .entry x 
+x: .data 1 , 2 , 3 
+x: .string "acb" 
+.extern EXT 
+.entry EXT 
+mov EXT , #-1 , Z 
+dec #-1 
+.extern x 
+LOOP: 
+.data "not a number" 
+.data 1 2 3 4 5 
+.string -1 
+bne VOID 
