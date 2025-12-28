@@ -7,26 +7,26 @@
 #include <stdio.h>
 #include <string.h>
 
-/// @brief check for valid symbols, no symbols wihtout declerations and not symbols marked both as entry and extern
-/// @param lables lables found during assemble
+/// @brief check for valid symbols, no symbols without declarations and not symbols marked both as entry and extern
+/// @param labels labels found during assemble
 /// @param entries entry requests
 /// @param codeSymbols symbols found in code
-/// @param fileName name of file currently assmbled
+/// @param fileName name of file currently assembled
 /// @return 1 if valid else 0
-int validateSymbols(int IC, symbolNode *lables, symbolNode *entries, symbolNode *codeSymbols, char *fileName)
+int validateSymbols(int IC, symbolNode *labels, symbolNode *entries, symbolNode *codeSymbols, char *fileName)
 {
   int errors = 0;
   codeSymbols = codeSymbols->next;
   for (; codeSymbols != NULL; codeSymbols = codeSymbols->next)
   {
-    if (!includesSymbol(lables, codeSymbols))
+    if (!includesSymbol(labels, codeSymbols))
       errors += !printErr(ERR_UNDEFINED_SYMBOL, codeSymbols->address, fileName, codeSymbols->name);
   }
 
   entries = entries->next;
   for (; entries != NULL; entries = entries->next)
   {
-    if (getWord(lables, entries->name) & E)
+    if (getWord(labels, entries->name) & E)
     {
       int lineNo = entries->address + IC - 1;
       errors += !printErr(ERR_EXNT, lineNo, fileName, entries->name);
@@ -37,11 +37,11 @@ int validateSymbols(int IC, symbolNode *lables, symbolNode *entries, symbolNode 
 
 /// @brief check syntax of line
 /// @param line
-/// @param lables lables found so far
+/// @param labels labels found so far
 /// @param lineNo line number
 /// @param fileName
 /// @return 1 if line syntax is valid else 0
-int validateSyntax(char *line, symbolNode *lables, int lineNo, char *fileName)
+int validateSyntax(char *line, symbolNode *labels, int lineNo, char *fileName)
 {
   tokenNode *head = tokenize(line);
   if (head->type == INVALID) // if a invlid token exists in line
@@ -49,7 +49,7 @@ int validateSyntax(char *line, symbolNode *lables, int lineNo, char *fileName)
 
   if (head->type == LABLE) // lable decleration
   {
-    if (!validLable(head, lables, lineNo, fileName))
+    if (!validLable(head, labels, lineNo, fileName))
       return 0;
     head = head->next;
   }
@@ -58,21 +58,21 @@ int validateSyntax(char *line, symbolNode *lables, int lineNo, char *fileName)
     return validOp(head, lineNo, fileName);
 
   if (head->type == INSTRUCTION) // instrunction
-    return validInst(head, lables, lineNo, fileName);
+    return validInst(head, labels, lineNo, fileName);
 
   return printErr(ERR_UNEXPECTED_TOKEN, lineNo, fileName, head->str); // unexpected token after line
 }
 
 /// @brief check that a lable decleration is valid
 /// @param head head of line of lable dec
-/// @param lables current lables found
+/// @param labels current labels found
 /// @param lineNo line number
 /// @param fileName cur file name
 /// @return 1 if valid else 0
-int validLable(tokenNode *head, symbolNode *lables, int lineNo, char *fileName)
+int validLable(tokenNode *head, symbolNode *labels, int lineNo, char *fileName)
 {
   symbolNode symbol = newSymbolNode(head->str); // create a symbol from current lable
-  if (includesSymbol(lables, &symbol))          // check for redefinition of symbol
+  if (includesSymbol(labels, &symbol))          // check for redefinition of symbol
     return printErr(ERR_REDEF, lineNo, fileName, symbol.name);
 
   if (strcmp(head->next->str, ".entry") == 0) // no meaning entry lable warning
@@ -116,11 +116,11 @@ int validOp(tokenNode *head, int lineNo, char *fileName)
 
 /// @brief check for valid instruction line syntx
 /// @param head head of line to check
-/// @param lables lablse found so far
+/// @param labels lablse found so far
 /// @param lineNo line number
 /// @param fileName cur file name
 /// @return 1 if valid else 0
-int validInst(tokenNode *head, symbolNode *lables, int lineNo, char *fileName)
+int validInst(tokenNode *head, symbolNode *labels, int lineNo, char *fileName)
 {
   // .entry && .extern
   if (strcmp(head->str, ".entry") == 0 || strcmp(head->str, ".extern") == 0)
@@ -130,7 +130,7 @@ int validInst(tokenNode *head, symbolNode *lables, int lineNo, char *fileName)
       return printErr(ERR_EXPECTED_SYMBOL, lineNo, fileName, head->str);
 
     // in extern check that lable decleration is valid (entries check will be done later)
-    if (strcmp(head->str, ".extern") == 0 && !validLable(head, lables, lineNo, fileName))
+    if (strcmp(head->str, ".extern") == 0 && !validLable(head, labels, lineNo, fileName))
       return 0;
     head = head->next;
   }

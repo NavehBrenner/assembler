@@ -23,7 +23,7 @@ int main(int argc, char const *argv[])
     char *filePath = (char *)malloc(strlen(fileFolder) + strlen(argv[i]) + 1);
     sprintf(filePath, "%s%s", fileFolder, argv[i]);
     if (!preAssemble(filePath)) // preAssemble file
-      assemble(filePath);       // if preassmble was successful also try to assemble file
+      assemble(filePath);       // if preassemble was successful also try to assemble file
     free(filePath);
   }
 
@@ -31,8 +31,8 @@ int main(int argc, char const *argv[])
 }
 
 /// @brief call preAssembler with filePath
-/// @param filePath path to file to preAssmble
-/// @return 0 if preassemble was succssesful else 0
+/// @param filePath path to file to preAssemble
+/// @return 0 if preassemble was successful else 0
 int preAssemble(char *filePath)
 {
   char *command = (char *)malloc(strlen(preAssemblerPath) + strlen(filePath));
